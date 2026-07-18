@@ -1,41 +1,50 @@
-name:Go grpc CI
+name: Go grpc CI
+
 on:
   push:
-    branches:["main"]
+    branches: ["main"]
   pull_request:
 
 jobs:
   test-and-generate:
-    runs-on:ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
-      -uses:actions/checkout@v4
-      -uses:actions/setup-go@v5
-      with:go-version:'1.24'
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
       
-      -name:Install protoc
-      run:|
-        sudo apt-get update
-        sudo apt-get install -y protobuf-compilor
+      - name: Install protoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
       
-      -name:Install protoc plugins
-      run:|
-        go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-        go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-        echo "$HOME/go/bin" >> $GITHUB_PATH
+      - name: Install protoc plugins
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
       
-      -name: Generate gRPC code
-      run: |
-      mkdir -p github.com/ebairamo/lib-proto3/gen/go
-      protoc \
-      --proto_path=api/proto/lib/v1 \
-      --go_out github.com/ebairamo/lib-proto3/gen/go \
-      --go_opt=module=github.com/ebairamo/lib-proto3 \
-      --go_grpc_out github.com/ebairamo/lib-proto3/gen/go \
-      --go_grpc_opt=module=github.com/ebairamo/lib-proto3 \
-      api/proto/library/v1/*.proto
-      -name:Commit AND Push to ebairamo Repo
-      run: |
-        cd ebairamo-app
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Generate gRPC code
+        run: |
+          rm -rf gen/go
+          mkdir -p gen/go/lib/v1
+          protoc \
+            --proto_path=api/proto/lib/v1 \
+            --go_out=gen/go/lib/v1 \
+            --go_grpc_out=gen/go/lib/v1 \
+            api/proto/lib/v1/*.proto
+
+      - name: Commit AND Push to ebairamo Repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add gen/go/
+          if git diff --staged --quiet; then 
+            echo "No generated changes"
+          else
+            git commit -m "Updated gRPC code [skip ci]"
+            git push
+          fi
