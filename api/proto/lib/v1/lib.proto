@@ -1,0 +1,29 @@
+syntax = "proto3";
+package libproto.v1;
+option go_package = "github.com/ebairamo/libproto/gen/go/lib/v1;libprotov1"; 
+
+service Library {
+    rpc CreateBook (BookCreate) returns(Book);
+    rpc GetBook (BookID) returns (Book);
+    rpc GetAll(GetAllRequest) returns (GetAllResponse);
+}
+message Book {
+    string id = 1;
+    string author = 2;
+    string s = 4;
+    
+}
+
+message BookCreate {
+    string author = 1;
+    string name = 2;
+}
+
+message BookID {
+    string id = 1;
+}
+message GetAllRequest {}
+
+message GetAllResponse{
+    repeated Book books = 1;
+}
