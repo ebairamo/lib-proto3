@@ -26,7 +26,7 @@ jobs:
       
       -name:Clone Main App Repo
       run: |
-          git clone https://x-access-token:${{ secrets.PROTO_ACTION_TOKEN }}@github.com/ebairamo/ebairamo.git ebairamo-app
+          git clone https://x-access-token:${{ secrets.PROTO_ACTION_TOKEN }}@github.com/ebairamo/lib-proto3.git ebairamo-app
       
       -name:Clean Old Code
       run:  rm -rf ebairamo-app/gen/go/*
@@ -35,58 +35,11 @@ jobs:
       run: |
       mkdir -p ebairamo-app/gen/go
       protoc \
-      --proto_path=api/proto \
+      --proto_path=api/proto/lib/v1 \
       --go_out ebairamo-app \
-      --go_opt=module=github.com/ebairamo/ebairamo \
+      --go_opt=module=github.com/ebairamo/lib-proto3 \
       --go_grpc_out ebairamo-app \
-      --go_grpc_opt=module=github.com/ebairamo/ebairamo \
-      api/proto/library/v1/*.proto
-      -name:Commit AND Push to ebairamo Repo
-      run: |
-        cd ebairamo-app
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"name:Go grpc CI
-on:
-  push:
-    branches:["main"]
-  pull_request:
-
-jobs:
-  test-and-generate:
-    runs-on:ubuntu-latest
-
-    steps:
-      -uses:actions/checkout@v4
-      -uses:actions/setup-go@v5
-      with:go-version:'1.24'
-      
-      -name:Install protoc
-      run:|
-        sudo apt-get update
-        sudo apt-get install -y protobuf-compilor
-      
-      -name:Install protoc plugins
-      run:|
-        go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-        go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-        echo "$HOME/go/bin" >> $GITHUB_PATH
-      
-      -name:Clone Main App Repo
-      run: |
-          git clone https://x-access-token:${{ secrets.PROTO_ACTION_TOKEN }}@github.com/ebairamo/ebairamo.git ebairamo-app
-      
-      -name:Clean Old Code
-      run:  rm -rf ebairamo-app/gen/go/*
-      
-      -name: Generate gRPC code
-      run: |
-      mkdir -p ebairamo-app/gen/go
-      protoc \
-      --proto_path=api/proto \
-      --go_out ebairamo-app \
-      --go_opt=module=github.com/ebairamo/ebairamo \
-      --go_grpc_out ebairamo-app \
-      --go_grpc_opt=module=github.com/ebairamo/ebairamo \
+      --go_grpc_opt=module=github.com/ebairamo/lib-proto3 \
       api/proto/library/v1/*.proto
       -name:Commit AND Push to ebairamo Repo
       run: |
