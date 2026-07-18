@@ -24,21 +24,14 @@ jobs:
         go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
         echo "$HOME/go/bin" >> $GITHUB_PATH
       
-      -name:Clone Main App Repo
-      run: |
-          git clone https://x-access-token:${{ secrets.PROTO_ACTION_TOKEN }}@github.com/ebairamo/lib-proto3.git ebairamo-app
-      
-      -name:Clean Old Code
-      run:  rm -rf ebairamo-app/gen/go/*
-      
       -name: Generate gRPC code
       run: |
-      mkdir -p ebairamo-app/gen/go
+      mkdir -p github.com/ebairamo/lib-proto3/gen/go
       protoc \
       --proto_path=api/proto/lib/v1 \
-      --go_out ebairamo-app \
+      --go_out github.com/ebairamo/lib-proto3/gen/go \
       --go_opt=module=github.com/ebairamo/lib-proto3 \
-      --go_grpc_out ebairamo-app \
+      --go_grpc_out github.com/ebairamo/lib-proto3/gen/go \
       --go_grpc_opt=module=github.com/ebairamo/lib-proto3 \
       api/proto/library/v1/*.proto
       -name:Commit AND Push to ebairamo Repo
