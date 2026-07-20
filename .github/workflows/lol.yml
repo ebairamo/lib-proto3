@@ -23,15 +23,21 @@ jobs:
 
       - name: Install protoc plugins
         run: |
-          # Устанавливаем бинарники напрямую в /usr/local/bin
-          GOBIN=/usr/local/bin go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
-          GOBIN=/usr/local/bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
       - name: Generate gRPC code
         run: |
           rm -rf gen/go
           mkdir -p gen/go
+          
+          # Находим путь к GOPATH
+          GOPATH_BIN=$(go env GOPATH)/bin
+          
+          # Явно указываем protoc путь к каждому плагину
           protoc \
+            --plugin=protoc-gen-go=$GOPATH_BIN/protoc-gen-go \
+            --plugin=protoc-gen-go_grpc=$GOPATH_BIN/protoc-gen-go-grpc \
             --proto_path=api/proto \
             --go_out=. \
             --go_opt=module=github.com/ebairamo/lib-proto3 \
