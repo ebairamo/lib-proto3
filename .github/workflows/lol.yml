@@ -17,18 +17,20 @@ jobs:
           go-version: '1.24'
 
       - name: Install protoc
-        uses: arduino/setup-protoc@v3
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
 
       - name: Install protoc plugins
         run: |
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+          # Устанавливаем бинарники напрямую в /usr/local/bin
+          GOBIN=/usr/local/bin go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
+          GOBIN=/usr/local/bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
 
       - name: Generate gRPC code
         run: |
           rm -rf gen/go
           mkdir -p gen/go
-          export PATH=$PATH:$(go env GOPATH)/bin
           protoc \
             --proto_path=api/proto \
             --go_out=. \
