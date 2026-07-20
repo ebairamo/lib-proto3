@@ -5,12 +5,18 @@ on:
     branches: ["main"]
   pull_request:
 
+# Даем боту права на запись в репозиторий
+permissions:
+  contents: write
+
 jobs:
   test-and-generate:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - uses: actions/setup-go@v5
         with:
@@ -31,10 +37,8 @@ jobs:
           rm -rf gen/go
           mkdir -p gen/go
           
-          # Находим путь к GOPATH
           GOPATH_BIN=$(go env GOPATH)/bin
           
-          # Явно указываем protoc путь к каждому плагину
           protoc \
             --plugin=protoc-gen-go=$GOPATH_BIN/protoc-gen-go \
             --plugin=protoc-gen-go_grpc=$GOPATH_BIN/protoc-gen-go-grpc \
