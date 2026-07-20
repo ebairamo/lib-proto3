@@ -1,6 +1,6 @@
 syntax = "proto3";
 package libproto.v1;
-option go_package = "github.com/ebairamo/libproto/gen/go/lib/v1;libprotov1"; 
+option go_package = "github.com/ebairamo/lib-proto3/gen/go/lib/v1;libprotov1"; 
 
 service Library {
     rpc CreateBook (BookCreate) returns(Book);
@@ -10,8 +10,9 @@ service Library {
 message Book {
     string id = 1;
     string author = 2;
-    string s = 4;
-    
+    reserved 3;
+    reserved "name";
+    string title = 4;
 }
 
 message BookCreate {
